@@ -54,27 +54,9 @@ def generate_dataset(dtm_path, video_path):
         raise Exception("Need a file path")
     if video_path is None:
         raise Exception("Need a file path")
-    with open(dtm_path, "rb") as dtm_f:
-        header_reader = DTMHeaderReader()
-        inputs = header_reader.get_inputs(dtm_f)
 
-    frame_scraper = FrameScraper()
-    num_video_frames = frame_scraper.num_frames(video_path)
-
-    inputs = controller_data.ControllerDataCondense(inputs, num_video_frames)
-
-    file_names = []
     filename = os.path.splitext(os.path.basename(video_path))[0]
-    if not os.path.exists(f"dump\\{filename}"):
-        os.makedirs(f"dump\\{filename}")
-    for i in range(num_video_frames):
-        if i % 1000 == 0:
-            print(f"{i}/{num_video_frames} frames saved...")
-        name = f"frame{i}_file{filename}"
-        frame_scraper.save_frame(video_path, i, filename, name)
-        file_names.append(f"{name}.jpg")
-    print(f"All done! Saving metadata now.")
-    objects_data = [{"file_name": file_name, **vars(obj)} for file_name, obj in zip(file_names, inputs)]
+    objects_data, _ = process_video_and_dtm(dtm_path, video_path, save_location=filename)
     df = pd.DataFrame(objects_data)
 
     df.to_csv(f'dump\\{filename}\\metadata.csv', index=False)
@@ -125,7 +107,7 @@ def save_aggregate_frames_return_input_frame_name_pairs(dtm_path, video_path, wh
     frame_scraper = FrameScraper()
     num_video_frames = frame_scraper.num_frames(video_path)
 
-    inputs = controller_data.ControllerDataCondense(inputs, num_video_frames)
+    inputs = controller_data.controller_data_condense(inputs, num_video_frames)
 
     file_names = []
     filename = os.path.splitext(os.path.basename(video_path))[0]
@@ -140,47 +122,52 @@ def save_aggregate_frames_return_input_frame_name_pairs(dtm_path, video_path, wh
     return [{"file_name": file_name, **vars(obj)} for file_name, obj in zip(file_names, inputs)]
 
 
-def get_aggregated_dataset_from_raw_data(where_save):
+def process_video_and_dtm(dtm_path, video_path, save_location):
+    with open(dtm_path, "rb") as dtm_f:
+        header_reader = DTMHeaderReader()
+        inputs = header_reader.get_inputs(dtm_f)
+
+    frame_scraper = FrameScraper()
+    frame_count = frame_scraper.num_frames(video_path)
+    inputs = controller_data.controller_data_condense(inputs, frame_count)
+
+    file_names = []
+    filename = os.path.splitext(os.path.basename(video_path))[0]
+    if not os.path.exists(f"dump\\{save_location}"):
+        os.makedirs(f"dump\\{save_location}")
+    for i in range(frame_count):
+        name = f"frame{i}_file{filename}"
+        frame_scraper.save_frame(video_path, i, save_location, name)
+        file_names.append(f"{name}.jpg")
+
+    processed_data = [{"file_name": file_name, **vars(obj)} for file_name, obj in zip(file_names, inputs)]
+    return processed_data, frame_count
+
+
+def get_aggregated_dataset_from_raw_data(save_location):
     raw_data_dirs = get_raw_data_dirs()
     objects_data = []
 
-    if not os.path.exists(f"dump\\{where_save}"):
-        os.makedirs(f"dump\\{where_save}")
+    if not os.path.exists(f"dump\\{save_location}"):
+        os.makedirs(f"dump\\{save_location}")
 
     print(f"Amount of video files being scraped: {len(raw_data_dirs)}")
-    print(f"Where we're going to save all of this: {where_save}")
+    print(f"Where we're going to save all of this: {save_location}")
     total_frame_count = 0
 
     for i, video_input_pair_dir in enumerate(raw_data_dirs):
         print(f"Opening {i}/{len(raw_data_dirs)} video files: {video_input_pair_dir}")
 
         dtm_path, video_path = get_video_dtm_in_dir(video_input_pair_dir)
+        processed_data, frames_in_processed_video = process_video_and_dtm(dtm_path, video_path,  save_location)
 
-        with open(dtm_path, "rb") as dtm_f:
-            header_reader = DTMHeaderReader()
-            inputs = header_reader.get_inputs(dtm_f)
+        total_frame_count += frames_in_processed_video
+        objects_data.extend(processed_data)
 
-        frame_scraper = FrameScraper()
-        num_video_frames = frame_scraper.num_frames(video_path)
-        total_frame_count += num_video_frames
-        inputs = controller_data.ControllerDataCondense(inputs, num_video_frames)
-
-        file_names = []
-        filename = os.path.splitext(os.path.basename(video_path))[0]
-        if not os.path.exists(f"dump\\{where_save}"):
-            os.makedirs(f"dump\\{where_save}")
-        for i in range(num_video_frames):
-            # if i % 3000 == 0:
-            #     print(f"{i}/{num_video_frames} frames saved...")
-            name = f"frame{i}_file{filename}"
-            frame_scraper.save_frame(video_path, i, where_save, name)
-            file_names.append(f"{name}.jpg")
-
-        objects_data.extend([{"file_name": file_name, **vars(obj)} for file_name, obj in zip(file_names, inputs)])
     print(f"Total frames aggregated: {total_frame_count}")
     df = pd.DataFrame(objects_data)
 
-    df.to_csv(f'dump\\{where_save}\\metadata.csv', index=False)
+    df.to_csv(f'dump\\{save_location}\\metadata.csv', index=False)
 
 
 if __name__ == '__main__':
@@ -190,6 +177,6 @@ if __name__ == '__main__':
     video = "C:\\Users\\User\\AppData\\Roaming\\Dolphin Emulator\\Dump\\Frames\\GALE01_2023-12-06_15-39-55_0.avi"
     dtm = "C:\\Users\\User\\Downloads\\dec_6_training.dtm"
 
-    generate_dataset(dtm, video)
+    # generate_dataset(dtm, video)
 
     get_aggregated_dataset_from_raw_data("big")
