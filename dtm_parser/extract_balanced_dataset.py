@@ -29,9 +29,6 @@ def extract_row_into_objects(row):
 def main(where_get, where_save):
     inputs = pd.read_csv(f"{where_get}metadata.csv")
 
-    # interesting_inputs = inputs[inputs.isin([True]).any(axis=1) | inputs.gt(140).any()]
-    # print(interesting_inputs)
-
     controller_datas = []
     image_names = []
     for i, (row_num, row) in enumerate(inputs.iterrows()):
@@ -68,6 +65,4 @@ def main(where_get, where_save):
 
 
 if __name__ == "__main__":
-    where_get = "dump\\big\\"
-    where_save = "dump\\balanced\\"
-    main(where_get, where_save)
+    main("dump\\big\\", "dump\\balanced\\")
