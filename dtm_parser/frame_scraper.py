@@ -43,9 +43,10 @@ class FrameScraper:
         cap = cv2.VideoCapture(path_to_video)
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number - 1)
         ret, frame = cap.read()
+        leading = f"C:\\Users\\User\\PycharmProjects\\smash_bros_frame_parser\\dtm_parser\\dump\\"
 
         if ret:
-            saved = cv2.imwrite(f"C:\\Users\\User\\PycharmProjects\\smash_bros_fra\\dtm_parser\\dump\\{sub_folder}\\{name}.jpg", frame)  # save frame as JPEG
+            saved = cv2.imwrite(f"{leading}{sub_folder}\\{name}.jpg", frame)  # save frame as JPEG
             if saved:
                 pass
                 # print("I Just saved a file!")
@@ -60,7 +61,7 @@ class FrameScraper:
     #     ret, frame = cap.read()
     #
     #     if ret:
-    #         saved = cv2.imwrite(f"C:\\Users\\User\\PycharmProjects\\smash_bros_framer_parser\\dtm_parser\\{frame_number}.jpg", frame)  # save frame as JPEG
+    #         saved = cv2.imwrite(f"C:\\Users\\User\\PycharmProjects\\smash_bros_frame_parser\\dtm_parser\\{frame_number}.jpg", frame)  # save frame as JPEG
     #         if not saved:
     #
     #     cap.release()
@@ -74,7 +75,7 @@ class FrameScraper:
     #     while True:
     #         ret, frame = cap.read()
     #         if ret:
-    #             saved = cv2.imwrite(f"C:\\Users\\User\\PycharmProjects\\smash_bros_framer_parser\\dtm_parser\\dump\\{frame_num}.jpg", frame)  # save frame as JPEG
+    #             saved = cv2.imwrite(f"C:\\Users\\User\\PycharmProjects\\smash_bros_frame_parser\\dtm_parser\\dump\\{frame_num}.jpg", frame)  # save frame as JPEG
     #             if saved:
     #                 print("I Just saved a file!")
     #                 frame_num += 1
