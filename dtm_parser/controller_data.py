@@ -55,7 +55,7 @@ class ControllerData:
         return self.any_true() or self.any_threshold_away_from_baseline(threshold)
 
 
-def ControllerDataCondense(controller_data_list, desired_amount):
+def controller_data_condense(controller_data_list, desired_amount):
     # print(f"LENGTH OF INPUTS: {len(controller_data_list)}")
     # print(f"DESIRED AMOUNT: {desired_amount}")
     condensed_controllers = [None for _ in range(desired_amount)]
@@ -67,28 +67,29 @@ def ControllerDataCondense(controller_data_list, desired_amount):
         # print(to_index-from_index, sep=" ")
         if to_index >= len(controller_data_list):
             to_index = len(controller_data_list) - 1
-        condensed_controllers[i] = _condenseControllerList(controller_data_list[from_index:to_index])
+        condensed_controllers[i] = _condense_controller_list(controller_data_list[from_index:to_index])
     # print(f"LENGTH OF MAX_POOLED CONTROLLER INPUTS: {len(condensed_controllers)}")
     return condensed_controllers
 
 
-def _condenseControllerList(controllers):
+def _condense_controller_list(controllers):
     if len(controllers) == 0:
-        return ControllerData(False, False, False, False, False, False, False, False, False, False, False, False, 0, 0, 127, 127, 127, 127)
+        return ControllerData(False, False, False, False, False, False, False, False, False, False, False, False, 0,
+                              0, 127, 127, 127, 127)
     if len(controllers) == 1:
         return controllers[0]
     if len(controllers) == 2:
-        return _controllereDataCondenseTwo(controllers[0], controllers[1])
+        return _controller_data_condense_two(controllers[0], controllers[1])
     if len(controllers) == 3:
-        return _controllerDataCondenseThree(controllers[0], controllers[1], controllers[2])
+        return _controller_data_condense_three(controllers[0], controllers[1], controllers[2])
 
-    controller = _controllereDataCondenseTwo(controllers[0], controllers[1])
+    controller = _controller_data_condense_two(controllers[0], controllers[1])
     new_controllers = controllers[2:] + [controller]
 
-    return _condenseControllerList(new_controllers)
+    return _condense_controller_list(new_controllers)
 
 
-def _controllereDataCondenseTwo(controller_data_one, controller_data_two):
+def _controller_data_condense_two(controller_data_one, controller_data_two):
     start = controller_data_one.Start or controller_data_two.Start
     a = controller_data_one.A or controller_data_two.A
     b = controller_data_one.B or controller_data_two.B
@@ -104,10 +105,10 @@ def _controllereDataCondenseTwo(controller_data_one, controller_data_two):
 
     l_pressure = max(controller_data_one.LPressure, controller_data_two.LPressure)
     r_pressure = max(controller_data_one.RPressure, controller_data_two.RPressure)
-    x_axis = _biggestDifferenceFromCenter(controller_data_one.XAxis, controller_data_two.XAxis)
-    y_axis = _biggestDifferenceFromCenter(controller_data_one.YAxis, controller_data_two.YAxis)
-    c_x_axis = _biggestDifferenceFromCenter(controller_data_one.CXAxis, controller_data_two.CXAxis)
-    c_y_axis = _biggestDifferenceFromCenter(controller_data_one.CYAxis, controller_data_two.CYAxis)
+    x_axis = _biggest_difference_from_center(controller_data_one.XAxis, controller_data_two.XAxis)
+    y_axis = _biggest_difference_from_center(controller_data_one.YAxis, controller_data_two.YAxis)
+    c_x_axis = _biggest_difference_from_center(controller_data_one.CXAxis, controller_data_two.CXAxis)
+    c_y_axis = _biggest_difference_from_center(controller_data_one.CYAxis, controller_data_two.CYAxis)
 
     condensed = ControllerData(Start=start, A=a, B=b, X=x, Y=y, Z=z, DPadUp=d_pad_up, DPadDown=d_pad_down,
                                DPadLeft=d_pad_left, DPadRight=d_pad_right, L=l, R=r, LPressure=l_pressure,
@@ -115,12 +116,12 @@ def _controllereDataCondenseTwo(controller_data_one, controller_data_two):
     return condensed
 
 
-def _biggestDifferenceFromCenter(num_one, num_two):
+def _biggest_difference_from_center(num_one, num_two):
     abs_max = max(abs(num_one - 127.5), abs(num_two - 127.5))
     if abs_max == abs(num_one - 127.5):
         return num_one
     return num_two
 
 
-def _controllerDataCondenseThree(controller_data_one, controller_data_two, controller_data_three):
-    return _controllereDataCondenseTwo(_controllereDataCondenseTwo(controller_data_one, controller_data_two), controller_data_three)
+def _controller_data_condense_three(controller_data_one, controller_data_two, controller_data_three):
+    return _controller_data_condense_two(_controller_data_condense_two(controller_data_one, controller_data_two), controller_data_three)
