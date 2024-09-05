@@ -56,11 +56,11 @@ def generate_dataset(dtm_path, video_path):
     if video_path is None:
         raise Exception("Need a file path")
     with open(dtm_path, "rb") as dtm:
-        HR = DTMHeaderReader()
-        inputs = HR.get_inputs(dtm)
+        header_reader = DTMHeaderReader()
+        inputs = header_reader.get_inputs(dtm)
 
-    FS = FrameScraper()
-    num_video_frames = FS.num_frames(video_path)
+    frame_scraper = FrameScraper()
+    num_video_frames = frame_scraper.num_frames(video_path)
 
     inputs = controller_data.ControllerDataCondense(inputs, num_video_frames)
 
@@ -72,7 +72,7 @@ def generate_dataset(dtm_path, video_path):
         if i % 1000 == 0:
             print(f"{i}/{num_video_frames} frames saved...")
         name = f"frame{i}_file{filename}"
-        FS.save_frame(video_path, i, filename, name)
+        frame_scraper.save_frame(video_path, i, filename, name)
         file_names.append(f"{name}.jpg")
     print(f"All done! Saving metadata now.")
     objects_data = [{"file_name": file_name, **vars(obj)} for file_name, obj in zip(file_names, inputs)]
@@ -191,6 +191,6 @@ if __name__ == '__main__':
     video = "C:\\Users\\User\\AppData\\Roaming\\Dolphin Emulator\\Dump\\Frames\\GALE01_2023-12-06_15-39-55_0.avi"
     dtm = "C:\\Users\\User\\Downloads\\dec_6_training.dtm"
 
-    # generate_dataset(dtm, video)
+    generate_dataset(dtm, video)
 
     get_aggregated_dataset_from_raw_data("big")

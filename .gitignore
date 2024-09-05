@@ -17,6 +17,7 @@ celerybeat.pid
 .idea/
 venv/
 .idea
-
+dtm_parser/.idea/
+dtm_parser/.idea
 dump/
 raw_data/
