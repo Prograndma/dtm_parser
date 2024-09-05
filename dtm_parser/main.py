@@ -3,7 +3,6 @@ from dtm_header_reader import DTMHeaderReader
 from frame_scraper import FrameScraper
 import os
 import pandas as pd
-from datasets import load_dataset
 
 
 def where_to_start_connecting_inputs_to_frames(num_video_frames, num_inputs):
@@ -15,12 +14,12 @@ def num_frames(dtm_path, video_path):
         raise Exception("Need a file path")
     if video_path is None:
         raise Exception("Need a file path")
-    with open(dtm_path, "rb") as dtm:
-        HR = DTMHeaderReader()
-        inputs = HR.get_inputs(dtm)
+    with open(dtm_path, "rb") as dtm_f:
+        header_reader = DTMHeaderReader()
+        inputs = header_reader.get_inputs(dtm_f)
 
-    FS = FrameScraper()
-    num_video_frames = FS.num_frames(video_path)
+    scraper = FrameScraper()
+    num_video_frames = scraper.num_frames(video_path)
 
     where_to_start = where_to_start_connecting_inputs_to_frames(num_video_frames, len(inputs))
 
@@ -31,21 +30,21 @@ def num_frames(dtm_path, video_path):
 
     print(inputs[3000])
     #
-    # FS.save_frame(video_path, 3000, f"{inputs[where_to_start + 3000]}")
+    # scraper.save_frame(video_path, 3000, f"{inputs[where_to_start + 3000]}")
 
-    # FS.specific_frame(video_path, 3000, f"{inputs[where_to_start + 3000]} {inputs[where_to_start + 3001]}")
+    # scraper.specific_frame(video_path, 3000, f"{inputs[where_to_start + 3000]} {inputs[where_to_start + 3001]}")
     file_names = []
     objects_list = []
     filename = os.path.splitext(os.path.basename(video_path))[0]
     for i in range(5):
         name = f"frame{i}_file{filename}"
-        FS.save_frame(video_path, i, name)
+        scraper.save_frame(video_path, i, name)
         file_names.append(name)
         objects_list.append(inputs[where_to_start + (2*i)])
 
-    combined_data = [{"file_name": file_name, **object_data} for file_name, object_data in zip(file_names, objects_list)]
+    comb_data = [{"file_name": file_name, **object_data} for file_name, object_data in zip(file_names, objects_list)]
 
-    df = pd.DataFrame(combined_data)
+    df = pd.DataFrame(comb_data)
 
     df.to_csv('metadata.csv', index=False)
 
@@ -55,9 +54,9 @@ def generate_dataset(dtm_path, video_path):
         raise Exception("Need a file path")
     if video_path is None:
         raise Exception("Need a file path")
-    with open(dtm_path, "rb") as dtm:
+    with open(dtm_path, "rb") as dtm_f:
         header_reader = DTMHeaderReader()
-        inputs = header_reader.get_inputs(dtm)
+        inputs = header_reader.get_inputs(dtm_f)
 
     frame_scraper = FrameScraper()
     num_video_frames = frame_scraper.num_frames(video_path)
@@ -119,9 +118,9 @@ def save_aggregate_frames_return_input_frame_name_pairs(dtm_path, video_path, wh
         raise Exception("Need a file path")
     if video_path is None:
         raise Exception("Need a file path")
-    with open(dtm_path, "rb") as dtm:
+    with open(dtm_path, "rb") as dtm_f:
         header_reader = DTMHeaderReader()
-        inputs = header_reader.get_inputs(dtm)
+        inputs = header_reader.get_inputs(dtm_f)
 
     frame_scraper = FrameScraper()
     num_video_frames = frame_scraper.num_frames(video_path)
@@ -157,9 +156,9 @@ def get_aggregated_dataset_from_raw_data(where_save):
 
         dtm_path, video_path = get_video_dtm_in_dir(video_input_pair_dir)
 
-        with open(dtm_path, "rb") as dtm:
+        with open(dtm_path, "rb") as dtm_f:
             header_reader = DTMHeaderReader()
-            inputs = header_reader.get_inputs(dtm)
+            inputs = header_reader.get_inputs(dtm_f)
 
         frame_scraper = FrameScraper()
         num_video_frames = frame_scraper.num_frames(video_path)
