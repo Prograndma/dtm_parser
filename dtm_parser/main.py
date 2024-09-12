@@ -59,12 +59,16 @@ def generate_dataset(dtm_path, video_path):
     objects_data, _ = process_video_and_dtm(dtm_path, video_path, save_location=filename)
     df = pd.DataFrame(objects_data)
 
-    df.to_csv(f'dump\\{filename}\\metadata.csv', index=False)
+    path = FrameScraper.get_project_root_dir()
+    path = path / "dtm_parser" / "dump" / filename / "metadata"
+
+    df.to_csv(f'{path}.csv', index=False)
     return
 
 
 def get_raw_data_dirs():
-    return [f"raw_data\\{name}" for name in os.listdir("raw_data") if os.path.isdir(os.path.join("raw_data", name))]
+    path = FrameScraper.get_project_root_dir() / "dtm_parser" / "raw_data"
+    return [f"{path / name}" for name in os.listdir("raw_data") if os.path.isdir(os.path.join("raw_data", name))]
 
 
 def get_video_dtm_in_dir(directory):
@@ -133,8 +137,9 @@ def process_video_and_dtm(dtm_path, video_path, save_location):
 
     file_names = []
     filename = os.path.splitext(os.path.basename(video_path))[0]
-    if not os.path.exists(f"dump\\{save_location}"):
-        os.makedirs(f"dump\\{save_location}")
+    path = FrameScraper.get_project_root_dir() / "dump" / save_location
+    if not os.path.exists(path):
+        os.makedirs(path)
     for i in range(frame_count):
         name = f"frame{i}_file{filename}"
         frame_scraper.save_frame(video_path, i, save_location, name)
@@ -147,9 +152,10 @@ def process_video_and_dtm(dtm_path, video_path, save_location):
 def get_aggregated_dataset_from_raw_data(save_location):
     raw_data_dirs = get_raw_data_dirs()
     objects_data = []
+    root_path = FrameScraper.get_project_root_dir() / "dtm_parser"
 
-    if not os.path.exists(f"dump\\{save_location}"):
-        os.makedirs(f"dump\\{save_location}")
+    if not os.path.exists(root_path / "dump" / save_location):
+        os.makedirs(root_path / "dump" / save_location)
 
     print(f"Amount of video files being scraped: {len(raw_data_dirs)}")
     print(f"Where we're going to save all of this: {save_location}")
@@ -166,16 +172,15 @@ def get_aggregated_dataset_from_raw_data(save_location):
 
     print(f"Total frames aggregated: {total_frame_count}")
     df = pd.DataFrame(objects_data)
-
-    df.to_csv(f'dump\\{save_location}\\metadata.csv', index=False)
+    df.to_csv(f'{root_path / "dump" / save_location / "metadata"}.csv', index=False)
 
 
 if __name__ == '__main__':
     # video = "C:\\Users\\User\\AppData\\Roaming\\Dolphin Emulator\\Dump\\Frames\\GALE01_2023-10-02_15-51-03_0.avi"
     # dtm = "C:\\Users\\User\\Downloads\\first_tas.dtm"
     #
-    video = "C:\\Users\\User\\AppData\\Roaming\\Dolphin Emulator\\Dump\\Frames\\GALE01_2023-12-06_15-39-55_0.avi"
-    dtm = "C:\\Users\\User\\Downloads\\dec_6_training.dtm"
+    video = "/home/thomas/.var/app/org.DolphinEmu.dolphin-emu/data/dolphin-emu/Dump/Frames/GALE01_2024-09-11_14-06-35_0.avi"
+    dtm = "/home/thomas/Downloads/first"
 
     # generate_dataset(dtm, video)
 
