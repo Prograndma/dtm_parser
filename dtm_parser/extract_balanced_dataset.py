@@ -67,6 +67,30 @@ def main(initial_location, balanced_save_location):
 
 if __name__ == "__main__":
     root_path = FrameScraper.get_project_root_dir()
-    where_get = root_path / "dtm_parser" / "dump" / "big"
-    where_save = root_path / "dtm_parser" / "dump" / "balanced"
+
+    # number = "01"
+    # number = "02"
+    # number = "03"
+    # where_get = root_path / "dtm_parser" / "dump" / number
+    # where_save = root_path / "dtm_parser" / "dump" / f"{number}_balanced"
+    # main(where_get, where_save)
+
+    # number = "04"
+    # where_get = root_path / "dtm_parser" / "dump" / number
+    # where_save = root_path / "dtm_parser" / "dump" / f"{number}_balanced"
+    # main(where_get, where_save)
+    #
+    # number = "05"
+    # where_get = root_path / "dtm_parser" / "dump" / number
+    # where_save = root_path / "dtm_parser" / "dump" / f"{number}_balanced"
+    # main(where_get, where_save)
+
+    number = "06"
+    where_get = root_path / "dtm_parser" / "dump" / number
+    where_save = root_path / "dtm_parser" / "dump" / f"{number}_balanced"
+    main(where_get, where_save)
+
+    number = "07"
+    where_get = root_path / "dtm_parser" / "dump" / number
+    where_save = root_path / "dtm_parser" / "dump" / f"{number}_balanced"
     main(where_get, where_save)
