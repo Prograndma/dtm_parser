@@ -66,9 +66,19 @@ def generate_dataset(dtm_path, video_path):
     return
 
 
-def get_raw_data_dirs():
+def get_raw_data_dirs(offset=0, max_files=None):
     path = FrameScraper.get_project_root_dir() / "dtm_parser" / "raw_data"
-    return [f"{path / name}" for name in os.listdir("raw_data") if os.path.isdir(os.path.join("raw_data", name))]
+    all_dirs = [f"{path / name}" for name in os.listdir("raw_data") if os.path.isdir(os.path.join("raw_data", name))]
+    # all_dirs.sort()
+    all_dirs = sorted(all_dirs, key=lambda x: int(x.split('/')[-1]))
+
+    if offset > len(all_dirs):
+        raise Exception("offset is too large!")
+
+    if (max_files is None) or (len(all_dirs) < offset + max_files):
+        return all_dirs[offset:]
+    return all_dirs[offset:offset + max_files]
+    # return [f"{path / name}" for name in os.listdir("raw_data") if os.path.isdir(os.path.join("raw_data", name))]
 
 
 def get_video_dtm_in_dir(directory):
@@ -149,8 +159,8 @@ def process_video_and_dtm(dtm_path, video_path, save_location):
     return processed_data, frame_count
 
 
-def get_aggregated_dataset_from_raw_data(save_location):
-    raw_data_dirs = get_raw_data_dirs()
+def get_aggregated_dataset_from_raw_data(save_location, max_files=None, offset=0):
+    raw_data_dirs = get_raw_data_dirs(offset=offset, max_files=max_files)
     objects_data = []
     root_path = FrameScraper.get_project_root_dir() / "dtm_parser"
 
@@ -183,5 +193,30 @@ if __name__ == '__main__':
     dtm = "/home/thomas/Downloads/first"
 
     # generate_dataset(dtm, video)
-
-    get_aggregated_dataset_from_raw_data("big")
+    mf = 10
+    # off = 0
+    # sv_loc = "01"
+    # sv_loc = "02"
+    # off = 10
+    # sv_loc = "03"
+    # off = 20
+    # get_aggregated_dataset_from_raw_data(sv_loc, max_files=mf, offset=off)
+    # print(f"max_files = {mf}\noffset = {off}")
+    # sv_loc = "04"
+    # off = 30
+    # get_aggregated_dataset_from_raw_data(sv_loc, max_files=mf, offset=off)
+    # print(f"max_files = {mf}\noffset = {off}")
+    # mf = 20
+    # sv_loc = "05"
+    # off = 40
+    # get_aggregated_dataset_from_raw_data(sv_loc, max_files=mf, offset=off)
+    # print(f"max_files = {mf}\noffset = {off}")
+    sv_loc = "06"
+    off = 50
+    get_aggregated_dataset_from_raw_data(sv_loc, max_files=mf, offset=off)
+    print(f"max_files = {mf}\noffset = {off}")
+    mf = 20
+    sv_loc = "07"
+    off = 60
+    get_aggregated_dataset_from_raw_data(sv_loc, max_files=mf, offset=off)
+    print(f"max_files = {mf}\noffset = {off}")
